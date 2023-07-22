@@ -1,0 +1,23 @@
+{{#each erros}}
+    <div class="alert alert-danger">{{this.texto}}</div>
+{{else}}
+
+{{/each}}
+<h2>Nova categoria</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form action="/admin/categorias/nova" method="post">
+        <label for="nome">Nome:</label>
+            <input type="text" required id="nome" name="nome" placeholder="Nome da categoria" class="form-control" minlength="2">
+
+            <br>
+
+        <label for="slug">Slug: </label>
+            <input type="text" required id="slug" name="slug" placeholder="Slug da categoria" class="form-control" minlength="2">
+
+            <br>
+            <button type="submit" class="btn btn-success">Criar categoria</button>
+        </form>
+    </div>
+</div>
