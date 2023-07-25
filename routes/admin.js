@@ -1,6 +1,7 @@
 import express from 'express';
 const admin = express.Router();
 import Categoria from '../models/Categoria.js';
+import Postagem from '../models/Postagem.js';
 // const Categoria = mongoose.model("categorias")
 
 admin.get('/', (req, res) => {
@@ -63,14 +64,6 @@ admin.get("/categorias/edit/:id", (req, res) => {
 
 admin.post("/categorias/edit", (req, res) => {
     Categoria.findOne({_id: req.body.id}).then((categoria) => {
-        // Fazer validações na hora de editar
-        // var erros = verificaCamposCategoria(req.body.nome, req.body.slug);
-
-        // if(erros.length > 0){
-        //     console.log(`Tem erro, categoria: ${categoria}`);
-        //     console.log(`Tem erro, categoria: ${categoria}`);
-        //     res.render('admin/editcategorias', {categoria:categoria, erros:erros} );
-        // } else {
             categoria.nome = req.body.nome;
             categoria.slug = req.body.slug;
             
@@ -102,6 +95,55 @@ admin.post("/categorias/deletar", (req, res) => {
         req.flash("error_msg", "Erro ao deletar a categoria!");
         res.redirect("/admin/categorias");
     })
+});
+
+admin.get("/postagens", (req, res) => {
+    Postagem.find().lean().populate("categoria").sort({data: "desc"}).then((postagens) => {
+        res.render("admin/postagens", {postagens: postagens});
+    }).catch((err) => {
+        console.log(`[OPS] - Erro ao listar as postagens: ${err}`);
+        req.flash("error_msg", "[OPS] - Erro ao listar as postagens");
+        res.redirect("/admin");
+    });
+});
+
+admin.get("/postagens/add", (req, res) => {
+    Categoria.find().lean().then((categorias) => {
+        res.render("admin/addpostagem", {categorias: categorias});
+    }).catch((err) => {
+        console.log(`[OPS] - Erro ao carregar o formulário: ${err}`);
+        req.flash("error_msg", "[OPS] - Erro ao carregar o formulário!");
+        res.redirect("/admin");
+    });
+});
+
+admin.post("/postagens/nova", (req, res) => {
+    var erros = [];
+
+    if(req.body.categoria == "0"){
+        erros.push({texto: "Categória inválida, registre uma categoria."});
+    }
+
+    if(erros.length > 0){
+        res.render("admin/addpostagem", {erros: erros});
+    }else{
+        const novaPostagem = {
+            titulo: req.body.titulo,
+            slug: req.body.slug,
+            descricao: req.body.descricao,
+            conteudo: req.body.conteudo,
+            categoria: req.body.categoria,
+            data: Date.now()
+        };
+
+        new Postagem(novaPostagem).save().then(() => {
+            req.flash("success_msg", "Postagem criada com sucesso.");
+            res.redirect("/admin/postagens");
+        }).catch((err) => {
+            req.flash("error_msg", "[OPS] - Erro ao salvar postagem.");
+            res.redirect("/admim/postagens");
+        })
+    }
 });
 
 

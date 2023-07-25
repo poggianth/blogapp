@@ -17,7 +17,7 @@
 
       <!-- Modal footer -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-dismiss="modal">Cancelar</button>
 
         <form action="/admin/categorias/deletar" method="post">
             <input type="hidden" name="id" id="id">
@@ -53,7 +53,9 @@
         </div>
     </div>
 {{else}}
-    <h4 class="mt-3">Nenhuma categoria registrada!</h4>
+    <div class="alert alert-danger mt-3">
+      <h5>Nenhuma categoria registrada!</h5>
+    </div>
 {{/each}}
 
 <script>
