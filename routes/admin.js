@@ -5,6 +5,7 @@ import Postagem from '../models/Postagem.js';
 // const Categoria = mongoose.model("categorias")
 
 admin.get('/', (req, res) => {
+    // Renderiza um arquivo (neste caso, .handlebars)
     res.render("admin/index");
 });
 
@@ -15,6 +16,7 @@ admin.get("/posts", (req, res) => {
 admin.get("/categorias", (req, res) => {
     // Listando categorias
     Categoria.find().lean().sort({date: 'desc'}).then((categorias) => {
+        // Renderiza um arquivo (neste caso, .handlebars)
         res.render("./admin/categorias", {categorias, categorias});
     }).catch((err) => {
         console.log(`[OPS] - Erro ao listar as categorias: ${err}`);
@@ -24,6 +26,7 @@ admin.get("/categorias", (req, res) => {
 });
 
 admin.get("/categorias/add", (req, res) => {
+    // Renderiza um arquivo (neste caso, .handlebars)
     res.render("./admin/addcategorias");
 });
 
@@ -31,6 +34,7 @@ admin.post("/categorias/nova", (req, res) => {
      
     var erros = verificaCamposCategoria(req.body.nome, req.body.slug);
     if(erros.length > 0){
+        // Renderiza um arquivo (neste caso, .handlebars)
         res.render("admin/addcategorias", {erros: erros});
     } else{
         console.log("nome: " + req.body.nome);
@@ -54,6 +58,7 @@ admin.post("/categorias/nova", (req, res) => {
 
 admin.get("/categorias/edit/:id", (req, res) => {
     Categoria.findOne({_id: req.params.id}).lean().then((categoria) => {
+        // Renderiza um arquivo (neste caso, .handlebars)
         res.render(`admin/editcategorias`, {categoria: categoria});
     }).catch((err) => {
         console.log(`Erro ao listar categoria: ${err}`);
@@ -99,6 +104,7 @@ admin.post("/categorias/deletar", (req, res) => {
 
 admin.get("/postagens", (req, res) => {
     Postagem.find().lean().populate("categoria").sort({data: "desc"}).then((postagens) => {
+        // Renderiza um arquivo (neste caso, .handlebars)
         res.render("admin/postagens", {postagens: postagens});
     }).catch((err) => {
         console.log(`[OPS] - Erro ao listar as postagens: ${err}`);
@@ -109,6 +115,7 @@ admin.get("/postagens", (req, res) => {
 
 admin.get("/postagens/add", (req, res) => {
     Categoria.find().lean().then((categorias) => {
+        // Renderiza um arquivo (neste caso, .handlebars)
         res.render("admin/addpostagem", {categorias: categorias});
     }).catch((err) => {
         console.log(`[OPS] - Erro ao carregar o formulário: ${err}`);
@@ -125,6 +132,7 @@ admin.post("/postagens/nova", (req, res) => {
     }
 
     if(erros.length > 0){
+        // Renderiza um arquivo (neste caso, .handlebars)
         res.render("admin/addpostagem", {erros: erros});
     }else{
         const novaPostagem = {
@@ -140,10 +148,59 @@ admin.post("/postagens/nova", (req, res) => {
             req.flash("success_msg", "Postagem criada com sucesso.");
             res.redirect("/admin/postagens");
         }).catch((err) => {
+            console.log(`[OPS] - Erro ao salvar postagem: ${err}`);
             req.flash("error_msg", "[OPS] - Erro ao salvar postagem.");
             res.redirect("/admim/postagens");
         })
     }
+});
+
+admin.get("/postagens/edit/:id", (req, res) => {
+    Postagem.findOne({_id: req.params.id}).lean().then((postagem) => {
+        Categoria.find().lean().then((categorias) => {
+            // Renderiza um arquivo (neste caso, .handlebars)
+            res.render("admin/editpostagem", {postagem: postagem, categorias});
+        }).catch((err) => {
+            console.log(`Erro ao listar categorias: ${err}`);
+            req.flash("error_msg", "Esta categoria não existe.");
+            res.redirect("/admin/postagens");
+        });
+    }).catch((err) => {
+        console.log(`Erro ao editar postagem: ${err}`);
+        req.flash("error_msg", "Esta postagem não existe.");
+        res.redirect("/admin/postagens");
+    });
+    
+});
+
+admin.post("/postagens/edit", (req, res) => {
+    Postagem.findOne({_id: req.body.id}).then((postagem) => {
+        postagem.titulo = req.body.titulo;
+        postagem.slug = req.body.slug;
+        postagem.descricao = req.body.descricao;
+        postagem.conteudo = req.body.conteudo;
+        postagem.categoria = req.body.categoria;
+        
+        postagem.save().then(() => {
+            req.flash("success_msg", "Categoria editada com sucesso!");
+            res.redirect("/admin/postagens");
+        }).catch((err) => {
+            console.log(`Erro ao alterar postagem: ${err}`);
+            req.flash("error_msg", "[OPS] - Erro ao alterar a postagem!");
+        });
+    });
+});
+
+
+admin.post("/postagens/deletar", (req, res) => {
+    Postagem.deleteOne({_id: req.body.id}).then(() => {
+        req.flash("success_msg", "Postagem deletada com sucesso!");
+        res.redirect("/admin/postagens");
+    }).catch((err) => {
+        console.log(`Erro ao deletar a postagem!: ${err}`);
+        req.flash("error_msg", "Erro ao deletar a postagem!");
+        res.redirect("/admin/postagens");
+    })
 });
 
 

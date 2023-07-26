@@ -8,13 +8,13 @@
 <div class="card">
     <div class="card-body">
         <form action="/admin/categorias/edit" method="post">
-        <input type="hidden" name="id" value="{{categoria._id}}">
-        <label for="nome">Nome:</label>
+            <input type="hidden" name="id" value="{{categoria._id}}">
+            <label for="nome">Nome:</label>
             <input type="text" required id="nome" name="nome" placeholder="Nome da categoria" class="form-control" value="{{categoria.nome}}" minlength="2">
 
             <br>
 
-        <label for="slug">Slug: </label>
+            <label for="slug">Slug: </label>
             <input type="text" required id="slug" name="slug" placeholder="Slug da categoria" class="form-control" value="{{categoria.slug}}" minlength="2">
 
             <br>

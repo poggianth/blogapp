@@ -1,15 +1,55 @@
+{{!-- Modal --}}
+
+<div class="modal fade" id="confirmarDelete" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Confirmar exclusão de postagem</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        Deseja confirmar a exclusão da postagem?
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+
+        <form action="/admin/postagens/deletar" method="post">
+            <input type="hidden" name="id" id="id">
+            <button type="submit" class="btn btn-danger btn-sm">Confirmar</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{{!-- Conteúdo --}}
+
 <h2>Lista de Postagens:</h2>
 <hr>
 <a href="/admin/postagens/add"><button class="btn btn-success">Nova postagem</button></a>
 
 {{#each postagens}}
-    <div class="card">
+    <div class="card mt-3">
         <div class="card-body">
             <h4>{{this.titulo}}</h4>
             <p>Descrição: {{this.descricao}}</p>
             <small>Categoria: {{this.categoria.nome}}</small>
             <br>
             <small>Data: {{this.data}}</small>
+            <br>
+
+            <a href="/admin/postagens/edit/{{this._id}}">
+                <button type="button" class="btn btn-warning btn-sm mt-4">Editar postagem</button>
+            </a>
+
+            <button type="button" class="btn btn-danger btn-sm mt-4" data-bs-toggle="modal" data-bs-target="#confirmarDelete" onclick="setaDadosModal('{{this._id}}')">Deletar postagem</button>
         </div>
     </div>
 {{else}}
@@ -17,3 +57,10 @@
       <h5>Nenhuma categoria registrada!</h5>
     </div>
 {{/each}}
+
+<script>
+  function setaDadosModal(idParaExcluir){
+    document.querySelector("input#id").value = idParaExcluir;
+  };
+
+</script>
