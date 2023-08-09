@@ -8,6 +8,7 @@ import { admin } from './routes/admin.js';
 import mongoose from "mongoose";
 import session from 'express-session';
 import flash from 'connect-flash';
+import Postagem from './models/Postagem.js';
 
 // Para utilizar o __dirname
     import path from 'path';
@@ -51,8 +52,32 @@ import flash from 'connect-flash';
 
 // Rotas
     app.get('/', (req, res) => {
-        res.send(`Rota principal`);
+        Postagem.find().lean().populate("categoria").sort({date: "desc"}).then((postagens) => {
+            res.render("admin/index", {postagens: postagens});
+        }).catch((err) => {
+            console.log(`Erro ao listar postagens: ${err}`);
+            req.flash("error_msg", "Houve um erro intero");
+            res.redirect("/404");
+        })
     });
+
+    app.get("/postagem/:slug", (req, res) => {
+        Postagem.findOne({slug: req.params.slug}).lean().then((postagem) => {
+            if(postagem){
+                res.render("postagem/index", {postagem: postagem});
+            }else{
+                req.flash("error_msg", "Essa postagem não existe!");
+                res.redirect("/");
+            }
+        }).catch((err) => {
+            req.flash("error_msg", "Houve um erro interno!")
+            res.redirect("/");
+        });
+    });
+
+    app.post("/404", (req, res) => {
+        res.send("Erro 404!");
+    })
 
     app.get('/posts', (req, res) => {
         res.send(`Lista de posts`)

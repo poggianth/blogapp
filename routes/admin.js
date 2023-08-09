@@ -103,7 +103,7 @@ admin.post("/categorias/deletar", (req, res) => {
 });
 
 admin.get("/postagens", (req, res) => {
-    Postagem.find().lean().populate("categoria").sort({data: "desc"}).then((postagens) => {
+    Postagem.find().lean().populate("categoria").sort({date: "desc"}).then((postagens) => {
         // Renderiza um arquivo (neste caso, .handlebars)
         res.render("admin/postagens", {postagens: postagens});
     }).catch((err) => {
@@ -141,7 +141,7 @@ admin.post("/postagens/nova", (req, res) => {
             descricao: req.body.descricao,
             conteudo: req.body.conteudo,
             categoria: req.body.categoria,
-            data: Date.now()
+            date: Date.now()
         };
 
         new Postagem(novaPostagem).save().then(() => {
