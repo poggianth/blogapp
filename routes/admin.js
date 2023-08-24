@@ -46,7 +46,7 @@ admin.post("/categorias/nova", (req, res) => {
     
         new Categoria(novaCategoria).save().then(() => {
             // Passa o valor de sucesso para a variavel
-            req.flash("success_msg", "Categoria cadastrada com sucesso!")
+            req.flash("success_msg", "Categoria cadastrada com sucesso!");
             res.redirect(`/admin/categorias`);
         }).catch((err) => {
             console.log(`Erro ao cadastrar categoria: ${err}`);

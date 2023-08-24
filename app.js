@@ -4,11 +4,13 @@ import { engine as handlebars } from 'express-handlebars';
 import bodyParser from "body-parser";
 const app = express();
 const PORT = 8081;
-import { admin } from './routes/admin.js';
 import mongoose from "mongoose";
 import session from 'express-session';
 import flash from 'connect-flash';
 import Postagem from './models/Postagem.js';
+import Categoria from './models/Categoria.js';
+import { admin } from './routes/admin.js';
+import { usuario } from './routes/usuario.js';
 
 // Para utilizar o __dirname
     import path from 'path';
@@ -77,13 +79,36 @@ import Postagem from './models/Postagem.js';
 
     app.post("/404", (req, res) => {
         res.send("Erro 404!");
-    })
+    });
 
-    app.get('/posts', (req, res) => {
-        res.send(`Lista de posts`)
+    app.get("/categorias", (req, res) => {
+        Categoria.find().lean().then((categorias) => {
+            res.render("categorias/index", {categorias: categorias});
+        }).catch((err) => {
+            console.log(`Erro interno ao listar as categorias: ${err}`);
+            req.flash("error_msg", "Erro interno ao listar as categorias!");
+            res.redirect("/");
+        })
+    });
+
+    app.get("/categorias/:slug", (req, res) => {
+        Categoria.findOne({slug: req.params.slug}).then((categoria) => {
+            if(categoria){
+                Postagem.find({categoria: categoria._id});
+
+            }else{
+                console.log(`Esta categoria não existe!`);
+                req.flash("error_msg", "Esta categoria não existe!");
+            }
+        }).catch((err) => {
+            console.log(`Erro ao listar categoria: ${err}`);
+            req.flash("error_msg", "Erro ao listar categoria!");
+            res.redirect("/"); 
+        });
     });
 
     app.use('/admin', admin);
+    app.use('/usuario', usuario);
 
 // Outros
 app.listen(PORT, () => {
